@@ -2,7 +2,7 @@
 - python: 3.7.3
 - モジュール: requirements.txt 参照
 
-# 設定
+# 設定(setting.py)
 ## nodeA
 - DEBUG: print表示の有無
 - DIFFICULTY: マイニング難易度
