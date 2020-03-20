@@ -154,6 +154,7 @@ if __name__ == "__main__":
     pass
     P1 = "/Users/yutaka/python/research/BC2ODPT/nodeA/db/ldb/"
     P2 = "/Users/yutaka/python/research/BC2ODPT/nodeB/db/ldb/"
+    P3 = "/Users/yutaka/python/research/BC2ODPT/nodeX_3/db/ldb/"
 
     # read_bc = json_db(P1)
     # print(str(read_bc))
@@ -173,3 +174,5 @@ if __name__ == "__main__":
     # print(J1 == J2)
 
     print(comparison_ldbs(P1, P2, 20))
+    print(comparison_ldbs(P1, P3, 20))
+    print(comparison_ldbs(P2, P3, 20))

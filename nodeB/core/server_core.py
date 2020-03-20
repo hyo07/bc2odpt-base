@@ -47,7 +47,7 @@ class ServerCore(object):
         self.core_node_host = core_node_host
         self.core_node_port = core_node_port
         self.bb = BlockBuilder()
-        self.flag_stop_block_build = False
+        self.flag_stop_block_build = True
         self.is_bb_running = False
         my_genesis_block = self.bb.generate_genesis_block()
         self.bm = BlockchainManager(my_genesis_block.to_dict())
@@ -56,6 +56,8 @@ class ServerCore(object):
 
         if core_node_host and core_node_port:
             self.plz_share_db()
+        else:
+            self.flag_stop_block_build = False
 
     def start_block_building(self):
         self.bb_timer = threading.Timer(CHECK_INTERVAL, self.__generate_block_with_tp)
@@ -99,16 +101,19 @@ class ServerCore(object):
         new_message = self.cm.get_message_text(MSG_REQUEST_FULL_CHAIN)
         self.cm.send_msg_to_all_peer(new_message)
 
-    def __generate_block_with_tp(self):
-        if DEBUG:
-            print('Thread for generate_block_with_tp started!')
-
+    def save_block_2_db(self):
         if len(self.bm.chain) >= SAVE_BORDER:
             main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P, vals=self.bm.chain[:SAVE_BORDER_HALF])
             self.bm.chain = self.bm.chain[SAVE_BORDER_HALF:]
             print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
             print("保存しました")
             print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+
+    def __generate_block_with_tp(self):
+        if DEBUG:
+            print('Thread for generate_block_with_tp started!')
+
+        self.save_block_2_db()
 
         # while self.flag_stop_block_build is not True:
         if self.flag_stop_block_build is not True:
@@ -150,12 +155,7 @@ class ServerCore(object):
                 self.bb_timer = threading.Timer(CHECK_INTERVAL, self.__generate_block_with_tp)
                 self.bb_timer.start()
 
-                if len(self.bm.chain) >= SAVE_BORDER:
-                    main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P, vals=self.bm.chain[:SAVE_BORDER_HALF])
-                    self.bm.chain = self.bm.chain[SAVE_BORDER_HALF:]
-                    print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-                    print("保存しました")
-                    print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+                self.save_block_2_db()
 
                 return
             print("ブロック生成")
@@ -163,12 +163,7 @@ class ServerCore(object):
             self.bm.set_new_block(new_block.to_dict())
             self.prev_block_hash = self.bm.get_hash(new_block.to_dict())
 
-            if len(self.bm.chain) >= SAVE_BORDER:
-                main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P, vals=self.bm.chain[:SAVE_BORDER_HALF])
-                self.bm.chain = self.bm.chain[SAVE_BORDER_HALF:]
-                print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-                print("保存しました")
-                print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+            self.save_block_2_db()
 
             message_new_block = self.cm.get_message_text(MSG_NEW_BLOCK, json.dumps(new_block.to_dict()))
 
@@ -241,13 +236,7 @@ class ServerCore(object):
                     self.prev_block_hash = self.bm.get_hash(new_block)
                     self.bm.set_new_block(new_block)
 
-                    if len(self.bm.chain) >= SAVE_BORDER:
-                        main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P,
-                                          vals=self.bm.chain[:SAVE_BORDER_HALF])
-                        self.bm.chain = self.bm.chain[SAVE_BORDER_HALF:]
-                        print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-                        print("保存しました")
-                        print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+                    self.save_block_2_db()
 
                     self.flag_stop_block_build = False  # TODO 試しで追加
 
@@ -268,18 +257,6 @@ class ServerCore(object):
                 # ブロックチェーン送信要求に応じて返却されたブロックチェーンを検証し、有効なものか検証した上で
                 # 自分の持つチェインと比較し優位な方を今後のブロックチェーンとして有効化する
                 new_block_chain = pickle.loads(msg[4].encode('utf8'))
-                if DEBUG:
-                    print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-                    print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-                    print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-                    print("受け取った新しいブロックチェーン ", new_block_chain)
-                    print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-                    print("型:", type(new_block_chain))
-                    print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-                    print("最新ブロック番号:", new_block_chain[-1]["block_number"])
-                    print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-                    print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-                    print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
 
                 if int(new_block_chain[-1]["block_number"]) > int(self.bm.chain[-1]["block_number"]):
                     result, pool_4_orphan_blocks = self.bm.resolve_conflicts(new_block_chain)

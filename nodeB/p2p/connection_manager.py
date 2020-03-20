@@ -280,6 +280,7 @@ class ConnectionManager:
                                 print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
                                 msg = self.mm.build(SHARE_DB7, self.port)
                                 self.send_msg((addr[0], peer_port), msg)
+                                self.sc_self.flag_stop_block_build = False
 
                     else:
                         print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")

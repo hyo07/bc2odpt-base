@@ -9,3 +9,4 @@ trash
 *.zip
 !.gitkeep
 test.txt
+nodeX_*
