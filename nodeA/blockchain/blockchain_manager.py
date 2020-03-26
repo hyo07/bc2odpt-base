@@ -34,12 +34,12 @@ class BlockchainManager:
             if self.is_valid_chain(blockchain):
                 self.chain = blockchain
 
-                # if len(self.chain) >= SAVE_BORDER:
-                #     main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P, vals=self.chain[:SAVE_BORDER_HALF])
-                #     self.chain = self.chain[SAVE_BORDER_HALF:]
-                #     print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-                #     print("保存しました")
-                #     print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+                if len(self.chain) >= SAVE_BORDER:
+                    main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P, vals=self.chain[:SAVE_BORDER_HALF])
+                    self.chain = self.chain[SAVE_BORDER_HALF:]
+                    print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+                    print("保存しました")
+                    print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
 
                 latest_block = self.chain[-1]
                 return self.get_hash(latest_block)
@@ -136,26 +136,27 @@ class BlockchainManager:
         mychain_len = len(self.chain)
         new_chain_len = len(chain)
 
-        # mychain_num = int(self.chain[-1]["block_number"])
-        # new_chain_num = int(chain[-1]["block_number"])
+        mychain_num = int(self.chain[-1]["block_number"])
+        new_chain_num = int(chain[-1]["block_number"])
 
         pool_4_orphan_blocks = copy.deepcopy(self.chain)
         has_orphan = False
 
         # 自分のチェーンの中でだけ処理済みとなっているTransactionを救出する。現在のチェーンに含まれていない
         # ブロックを全て取り出す。時系列を考えての有効無効判定などはしないかなり簡易な処理。
-        # if (new_chain_len > mychain_len) and (new_chain_num > mychain_num):
-        if new_chain_len > mychain_len:
-            for b in pool_4_orphan_blocks:
-                for b2 in chain:
-                    if b == b2:
-                        pool_4_orphan_blocks.remove(b)
-                # if b in chain:
-                #     pool_4_orphan_blocks.remove(b)
-                # TODO これじゃダメなのかな？上の部分
+        if (new_chain_len > mychain_len) and (new_chain_num > mychain_num):
+            # if new_chain_len > mychain_len:
+            # for b in pool_4_orphan_blocks: #TODO orphan_block及びトランザクションの重複チェックが出来次第
+            #     for b2 in chain:
+            #         if b == b2:
+            #             pool_4_orphan_blocks.remove(b)
 
-            # result = self.renew_my_blockchain(chain)
-            result = self.renew_my_blockchain2(chain, new_chain_len - mychain_len)
+            # if b in chain:
+            #     pool_4_orphan_blocks.remove(b)
+            # TODO これじゃダメなのかな？上の部分
+
+            result = self.renew_my_blockchain(chain)
+            # result = self.renew_my_blockchain2(chain, new_chain_len - mychain_len)
             if DEBUG:
                 print(result)
             if result is not None:

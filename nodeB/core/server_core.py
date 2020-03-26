@@ -102,18 +102,28 @@ class ServerCore(object):
         self.cm.send_msg_to_all_peer(new_message)
 
     def save_block_2_db(self):
+        if self.is_bb_running:
+            self.flag_stop_block_build = True
+        saved_bc = []
+
         if len(self.bm.chain) >= SAVE_BORDER:
-            main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P, vals=self.bm.chain[:SAVE_BORDER_HALF])
+            saved_bc = self.bm.chain[:SAVE_BORDER_HALF]
             self.bm.chain = self.bm.chain[SAVE_BORDER_HALF:]
+            main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P, vals=saved_bc)
             print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
             print("保存しました")
             print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+
+        self.flag_stop_block_build = False
 
     def __generate_block_with_tp(self):
         if DEBUG:
             print('Thread for generate_block_with_tp started!')
 
-        self.save_block_2_db()
+        print("■■■■■■■■■■■■■■■■■■■ Current BC ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+        print(self.bm.chain)
+
+        # self.save_block_2_db()
 
         # while self.flag_stop_block_build is not True:
         if self.flag_stop_block_build is not True:
@@ -150,12 +160,12 @@ class ServerCore(object):
                 print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
                 print("■■■■■■■■■■■■■■ YOU LOSE ■■■■■■■■■■■■■■■")
                 print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-                self.flag_stop_block_build = False
-                self.is_bb_running = False
-                self.bb_timer = threading.Timer(CHECK_INTERVAL, self.__generate_block_with_tp)
-                self.bb_timer.start()
+                # self.flag_stop_block_build = False
+                # self.is_bb_running = False
+                # self.bb_timer = threading.Timer(CHECK_INTERVAL, self.__generate_block_with_tp)
+                # self.bb_timer.start()
 
-                self.save_block_2_db()
+                # self.save_block_2_db()
 
                 return
             print("ブロック生成")
@@ -173,9 +183,6 @@ class ServerCore(object):
             self.tp.clear_my_transactions(index)
 
             # break
-
-        print("■■■■■■■■■■■■■■■■■■■ Current BC ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-        print(self.bm.chain)
 
         # print('Current prev_block_hash is ... ', self.prev_block_hash)
         self.flag_stop_block_build = False

@@ -155,11 +155,12 @@ if __name__ == "__main__":
     P1 = "/Users/yutaka/python/research/BC2ODPT/nodeA/db/ldb/"
     P2 = "/Users/yutaka/python/research/BC2ODPT/nodeB/db/ldb/"
     P3 = "/Users/yutaka/python/research/BC2ODPT/nodeX_3/db/ldb/"
+    P4 = "/Users/yutaka/python/research/BC2ODPT/nodeX_4/db/ldb/"
 
-    # read_bc = json_db(P1)
-    # print(str(read_bc))
-    # print(read_bc)
-    # print(is_valid_chain(read_bc))
+    read_bc = json_db(P1)
+    print(read_bc)
+    print(len(read_bc))
+    print(is_valid_chain(read_bc))
     # print(valid_all(P1))
     #
     # with open("test.txt", "w") as f:
@@ -175,4 +176,4 @@ if __name__ == "__main__":
 
     print(comparison_ldbs(P1, P2, 20))
     print(comparison_ldbs(P1, P3, 20))
-    print(comparison_ldbs(P2, P3, 20))
+    print(comparison_ldbs(P1, P4, 20))
