@@ -101,18 +101,18 @@ class ServerCore(object):
         new_message = self.cm.get_message_text(MSG_REQUEST_FULL_CHAIN)
         self.cm.send_msg_to_all_peer(new_message)
 
-    def save_block_2_db(self):
-        if self.is_bb_running:
-            self.flag_stop_block_build = True
-        saved_bc = []
-
-        if len(self.bm.chain) >= SAVE_BORDER:
-            saved_bc = self.bm.chain[:SAVE_BORDER_HALF]
-            self.bm.chain = self.bm.chain[SAVE_BORDER_HALF:]
-            main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P, vals=saved_bc)
-            print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-            print("保存しました")
-            print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+    # def save_block_2_db(self):
+    #     if self.is_bb_running:
+    #         self.flag_stop_block_build = True
+    #     saved_bc = []
+    #
+    #     if len(self.bm.chain) >= SAVE_BORDER:
+    #         saved_bc = self.bm.chain[:SAVE_BORDER_HALF]
+    #         self.bm.chain = self.bm.chain[SAVE_BORDER_HALF:]
+    #         main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P, vals=saved_bc)
+    #         print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+    #         print("保存しました")
+    #         print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
 
         self.flag_stop_block_build = False
 
@@ -124,6 +124,7 @@ class ServerCore(object):
         print(self.bm.chain)
 
         # self.save_block_2_db()
+        self.bm.save_block_2_db()
 
         # while self.flag_stop_block_build is not True:
         if self.flag_stop_block_build is not True:
@@ -160,10 +161,10 @@ class ServerCore(object):
                 print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
                 print("■■■■■■■■■■■■■■ YOU LOSE ■■■■■■■■■■■■■■■")
                 print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-                # self.flag_stop_block_build = False
-                # self.is_bb_running = False
-                # self.bb_timer = threading.Timer(CHECK_INTERVAL, self.__generate_block_with_tp)
-                # self.bb_timer.start()
+                self.flag_stop_block_build = False
+                self.is_bb_running = False
+                self.bb_timer = threading.Timer(CHECK_INTERVAL, self.__generate_block_with_tp)
+                self.bb_timer.start()
 
                 # self.save_block_2_db()
 
@@ -173,7 +174,7 @@ class ServerCore(object):
             self.bm.set_new_block(new_block.to_dict())
             self.prev_block_hash = self.bm.get_hash(new_block.to_dict())
 
-            self.save_block_2_db()
+            # self.save_block_2_db()
 
             message_new_block = self.cm.get_message_text(MSG_NEW_BLOCK, json.dumps(new_block.to_dict()))
 
@@ -243,7 +244,7 @@ class ServerCore(object):
                     self.prev_block_hash = self.bm.get_hash(new_block)
                     self.bm.set_new_block(new_block)
 
-                    self.save_block_2_db()
+                    # self.save_block_2_db()
 
                     self.flag_stop_block_build = False  # TODO 試しで追加
 

@@ -34,12 +34,7 @@ class BlockchainManager:
             if self.is_valid_chain(blockchain):
                 self.chain = blockchain
 
-                if len(self.chain) >= SAVE_BORDER:
-                    main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P, vals=self.chain[:SAVE_BORDER_HALF])
-                    self.chain = self.chain[SAVE_BORDER_HALF:]
-                    print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-                    print("保存しました")
-                    print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+                self.save_block_2_db()
 
                 latest_block = self.chain[-1]
                 return self.get_hash(latest_block)
@@ -58,12 +53,7 @@ class BlockchainManager:
                     merge_len = FORK_LEN - len_diff
                     self.chain = self.chain[:(-1 * merge_len)] + new_blockchain[(-1 * FORK_LEN):]
 
-                # if len(self.chain) >= SAVE_BORDER:
-                #     main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P, vals=self.chain[:SAVE_BORDER_HALF])
-                #     self.chain = self.chain[SAVE_BORDER_HALF:]
-                #     print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-                #     print("保存しました")
-                #     print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+                # self.save_block_2_db()
 
                 latest_block = self.chain[-1]
                 return self.get_hash(latest_block)
@@ -228,3 +218,19 @@ class BlockchainManager:
         block_string = json.dumps(block, sort_keys=True)
         # print("BlockchainManager: block_string", block_string)
         return binascii.hexlify(self._get_double_sha256((block_string).encode('utf-8'))).decode('ascii')
+
+    def save_block_2_db(self):
+        with self.lock:
+            # if self.is_bb_running:
+            #     self.flag_stop_block_build = True
+            saved_bc = []
+
+            if len(self.chain) >= SAVE_BORDER:
+                saved_bc = self.chain[:SAVE_BORDER_HALF]
+                self.chain = self.chain[SAVE_BORDER_HALF:]
+                main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P, vals=saved_bc)
+                print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+                print("保存しました")
+                print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+
+            # self.flag_stop_block_build = False
