@@ -34,7 +34,13 @@ class BlockchainManager:
             if self.is_valid_chain(blockchain):
                 self.chain = blockchain
 
-                self.save_block_2_db()
+                if len(self.chain) >= SAVE_BORDER:
+                    saved_bc = self.chain[:SAVE_BORDER_HALF]
+                    self.chain = self.chain[SAVE_BORDER_HALF:]
+                    main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P, vals=saved_bc)
+                    print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+                    print("保存しました")
+                    print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
 
                 latest_block = self.chain[-1]
                 return self.get_hash(latest_block)
