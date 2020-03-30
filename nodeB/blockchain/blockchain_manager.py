@@ -26,7 +26,11 @@ class BlockchainManager:
 
     def set_new_block(self, block):
         with self.lock:
-            self.chain.append(block)
+            if int(self.chain[-1]["block_number"]) < int(block["block_number"]):
+                self.chain.append(block)
+                return True
+            else:
+                return False
 
     def renew_my_blockchain(self, blockchain):
         # ブロックチェーン自体を更新し、それによって変更されるはずの最新のprev_block_hashを計算して返却する
@@ -34,13 +38,13 @@ class BlockchainManager:
             if self.is_valid_chain(blockchain):
                 self.chain = blockchain
 
-                if len(self.chain) >= SAVE_BORDER:
-                    saved_bc = self.chain[:SAVE_BORDER_HALF]
-                    self.chain = self.chain[SAVE_BORDER_HALF:]
-                    main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P, vals=saved_bc)
-                    print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-                    print("保存しました")
-                    print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+                # if len(self.chain) >= SAVE_BORDER:
+                #     saved_bc = self.chain[:SAVE_BORDER_HALF]
+                #     self.chain = self.chain[SAVE_BORDER_HALF:]
+                #     main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P, vals=saved_bc)
+                #     print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+                #     print("保存しました")
+                #     print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
 
                 latest_block = self.chain[-1]
                 return self.get_hash(latest_block)
@@ -59,7 +63,13 @@ class BlockchainManager:
                     merge_len = FORK_LEN - len_diff
                     self.chain = self.chain[:(-1 * merge_len)] + new_blockchain[(-1 * FORK_LEN):]
 
-                # self.save_block_2_db()
+                # if len(self.chain) >= SAVE_BORDER:
+                #     saved_bc = self.chain[:SAVE_BORDER_HALF]
+                #     self.chain = self.chain[SAVE_BORDER_HALF:]
+                #     main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P, vals=saved_bc)
+                #     print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+                #     print("保存しました")
+                #     print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
 
                 latest_block = self.chain[-1]
                 return self.get_hash(latest_block)
@@ -140,7 +150,9 @@ class BlockchainManager:
 
         # 自分のチェーンの中でだけ処理済みとなっているTransactionを救出する。現在のチェーンに含まれていない
         # ブロックを全て取り出す。時系列を考えての有効無効判定などはしないかなり簡易な処理。
-        if (new_chain_len > mychain_len) and (new_chain_num > mychain_num):
+        if (new_chain_len > mychain_len) and (new_chain_num > mychain_num) and \
+                ((int(self.chain[0]["block_number"]) == int(
+                    chain[0]["block_number"]) or (self.chain[0]["block_number"] == "0"))):
             # if new_chain_len > mychain_len:
             # for b in pool_4_orphan_blocks: #TODO orphan_block及びトランザクションの重複チェックが出来次第
             #     for b2 in chain:

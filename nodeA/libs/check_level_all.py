@@ -158,7 +158,7 @@ if __name__ == "__main__":
     P4 = "/Users/yutaka/python/research/BC2ODPT/nodeX_4/db/ldb/"
 
     read_bc = json_db(P1)
-    print(read_bc)
+    # print(read_bc)
     print(len(read_bc))
     print(is_valid_chain(read_bc))
     # print(valid_all(P1))

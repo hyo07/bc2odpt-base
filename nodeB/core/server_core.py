@@ -101,18 +101,18 @@ class ServerCore(object):
         new_message = self.cm.get_message_text(MSG_REQUEST_FULL_CHAIN)
         self.cm.send_msg_to_all_peer(new_message)
 
-    # def save_block_2_db(self):
-    #     if self.is_bb_running:
-    #         self.flag_stop_block_build = True
-    #     saved_bc = []
-    #
-    #     if len(self.bm.chain) >= SAVE_BORDER:
-    #         saved_bc = self.bm.chain[:SAVE_BORDER_HALF]
-    #         self.bm.chain = self.bm.chain[SAVE_BORDER_HALF:]
-    #         main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P, vals=saved_bc)
-    #         print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-    #         print("保存しました")
-    #         print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+        # def save_block_2_db(self):
+        #     if self.is_bb_running:
+        #         self.flag_stop_block_build = True
+        #     saved_bc = []
+        #
+        #     if len(self.bm.chain) >= SAVE_BORDER:
+        #         saved_bc = self.bm.chain[:SAVE_BORDER_HALF]
+        #         self.bm.chain = self.bm.chain[SAVE_BORDER_HALF:]
+        #         main_level.add_db(ldb_p=LDB_P, param_p=PARAM_P, zip_p=ZIP_P, vals=saved_bc)
+        #         print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+        #         print("保存しました")
+        #         print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
 
         self.flag_stop_block_build = False
 
@@ -241,8 +241,12 @@ class ServerCore(object):
                     # ブロック生成が行われていたら一旦停止してあげる（threadingなのでキレイに止まらない場合あり）
                     if self.is_bb_running:
                         self.flag_stop_block_build = True
-                    self.prev_block_hash = self.bm.get_hash(new_block)
-                    self.bm.set_new_block(new_block)
+
+                    # self.prev_block_hash = self.bm.get_hash(new_block)
+                    # self.bm.set_new_block(new_block)
+
+                    if self.bm.set_new_block(new_block):
+                        self.prev_block_hash = self.bm.get_hash(new_block)
 
                     # self.save_block_2_db()
 
@@ -266,7 +270,9 @@ class ServerCore(object):
                 # 自分の持つチェインと比較し優位な方を今後のブロックチェーンとして有効化する
                 new_block_chain = pickle.loads(msg[4].encode('utf8'))
 
-                if int(new_block_chain[-1]["block_number"]) > int(self.bm.chain[-1]["block_number"]):
+                if (int(new_block_chain[-1]["block_number"]) > int(self.bm.chain[-1]["block_number"])) and \
+                        ((int(new_block_chain[0]["block_number"]) == int(self.bm.chain[0]["block_number"])) or
+                         (self.bm.chain[0]["block_number"] == "0")):
                     result, pool_4_orphan_blocks = self.bm.resolve_conflicts(new_block_chain)
                     if DEBUG:
                         print('blockchain received')
