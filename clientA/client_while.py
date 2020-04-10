@@ -32,6 +32,7 @@ def main():
     count = 1
     while True:
         value = randint(1, 100)
+        # value = count
         transactions.append({
             'sender': 's{}'.format(str(count)),
             'recipient': 'r{}'.format(str(count)),
@@ -41,6 +42,7 @@ def main():
             my_p2p_client.send_message_to_my_core_node(MSG_NEW_TRANSACTION, json.dumps(transactions))
             transactions = []
             sleep(10)
+            # count = 0
         else:
             sleep(1)
         count += 1

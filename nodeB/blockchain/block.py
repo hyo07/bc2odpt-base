@@ -40,7 +40,8 @@ class Block:
         d = {
             'block_number': str(self.b_num),
             'timestamp': self.timestamp,
-            'transactions': list(map(json.dumps, self.transactions)),
+            # 'transactions': list(map(json.dumps, self.transactions)),
+            'transactions': json.dumps(self.transactions),
             'previous_block': self.previous_block,
             # 'address': self.address,
         }

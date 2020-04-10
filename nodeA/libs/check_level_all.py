@@ -174,6 +174,6 @@ if __name__ == "__main__":
     # J2 = json_db(P2)
     # print(J1 == J2)
 
-    print(comparison_ldbs(P1, P2, 20))
-    print(comparison_ldbs(P1, P3, 20))
-    print(comparison_ldbs(P1, P4, 20))
+    print(comparison_ldbs(P1, P2, 10))
+    # print(comparison_ldbs(P1, P3, 20))
+    # print(comparison_ldbs(P1, P4, 20))

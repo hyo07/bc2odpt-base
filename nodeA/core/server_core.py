@@ -210,18 +210,39 @@ class ServerCore(object):
                 new_transaction = json.loads(msg[4])
                 if DEBUG:
                     print("received new_transaction", new_transaction)
-                current_transactions = self.tp.get_stored_transactions()
-                if new_transaction in current_transactions:
-                    if DEBUG:
-                        print("this is already pooled transaction:", new_transaction)
+                # current_transactions = self.tp.get_stored_transactions()
+
+                # if DEBUG:
+                #     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+                #     print("current_transactions:", current_transactions)
+                #     print("current_transactions type:", type(current_transactions))
+                #     if current_transactions:
+                #         print("current_transactions [0]:", current_transactions[0])
+                #         print("current_transactions [0] type:", type(current_transactions[0]))
+                #     print("new_transaction:", new_transaction)
+                #     print("new_transaction type:", type(new_transaction))
+                #     if new_transaction:
+                #         print("new_transaction [0]:", new_transaction[0])
+                #         print("new_transaction [0]:", type(new_transaction[0]))
+                #     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+
+                # if new_transaction in current_transactions:
+                #     if DEBUG:
+                #         print("this is already pooled transaction:", new_transaction)
+                #     return
+
+                # only_new_tx = self.tp.check_duplicates(new_transaction)
+                # if not only_new_tx:
+                #     return
+
+                if not self.tp.check_duplicates_and_set_tx(new_transaction):
                     return
+
+                # self.tp.set_new_transaction(only_new_tx)
+
                 if not is_core:
-                    self.tp.set_new_transaction(new_transaction)
-                    # new_message = self.cm.get_message_text(MSG_NEW_BLOCK, json.dumps(new_block.to_dict()))
                     new_message = self.cm.get_message_text(MSG_NEW_TRANSACTION, json.dumps(new_transaction))
                     self.cm.send_msg_to_all_peer(new_message)
-                else:
-                    self.tp.set_new_transaction(new_transaction)
 
             elif msg[2] == MSG_NEW_BLOCK:
 
