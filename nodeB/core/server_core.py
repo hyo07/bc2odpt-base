@@ -124,14 +124,24 @@ class ServerCore(object):
         print(self.bm.chain)
 
         # self.save_block_2_db()
-        self.bm.save_block_2_db()
+        saved_bcs = self.bm.save_block_2_db()
+
+        if saved_bcs:
+            for saved_bc in saved_bcs:
+                # genesis_blockはトランザクションがハッシュ値なのでloadsできない
+                try:
+                    self.tp.clear_my_hash_txs(json.loads(saved_bc["transactions"]))
+                except json.decoder.JSONDecodeError:
+                    pass
 
         # while self.flag_stop_block_build is not True:
         if self.flag_stop_block_build is not True:
-            result = self.tp.get_stored_transactions()
-            print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-            print("transactions", self.tp.get_stored_transactions())
-            print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+            # result = self.tp.get_stored_transactions()
+            new_tp = self.tp.get_stored_transactions2()
+            if DEBUG:
+                print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+                print("transactions", self.tp.get_stored_transactions())
+                print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
 
             # if not result:
             #     print('Transaction Pool is empty ...')
@@ -146,10 +156,12 @@ class ServerCore(object):
             #     index = len(result)
             #     self.tp.clear_my_transactions(index)
 
-            new_tp = self.bm.remove_useless_transaction(result)
-            self.tp.renew_my_transactions(new_tp)
+            # new_tp = self.bm.remove_useless_transaction(result)
+            # self.tp.renew_my_transactions(new_tp)
+
             # if len(new_tp) == 0:  # TODO TPが0のとき、終わるように。コメントアウトで切り替え
             #     break
+
             block_num = level_param.get_block_num(PARAM_P) + len(self.bm.chain)
             new_block = self.bb.generate_new_block(new_tp, self.prev_block_hash, str(block_num))
 
@@ -170,6 +182,7 @@ class ServerCore(object):
 
                 return
             print("ブロック生成")
+            print(new_block_dic)
 
             self.bm.set_new_block(new_block.to_dict())
             self.prev_block_hash = self.bm.get_hash(new_block.to_dict())
@@ -180,8 +193,9 @@ class ServerCore(object):
 
             self.cm.send_msg_to_all_peer(message_new_block)
 
-            index = len(result)
-            self.tp.clear_my_transactions(index)
+            # index = len(result)
+            # self.tp.clear_my_transactions(index)
+            self.tp.clear_my_transactions2(new_tp)
 
             # break
 
@@ -242,6 +256,7 @@ class ServerCore(object):
 
                     if self.bm.set_new_block(new_block):
                         self.prev_block_hash = self.bm.get_hash(new_block)
+                        self.tp.clear_my_transactions2(json.loads(new_block["transactions"]))
 
                     # self.save_block_2_db()
 

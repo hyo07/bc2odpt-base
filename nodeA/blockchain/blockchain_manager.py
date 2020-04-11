@@ -252,3 +252,4 @@ class BlockchainManager:
                 print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
 
             # self.flag_stop_block_build = False
+        return saved_bc
