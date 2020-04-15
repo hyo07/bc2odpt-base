@@ -62,6 +62,7 @@ class ConnectionManager:
         self.callback = callback
         self.sc_self = sc_self
         self.flag = 0
+        self.sync_flag = False
 
     # 待受を開始する際に呼び出される（ServerCore向け
     def start(self):
@@ -281,6 +282,7 @@ class ConnectionManager:
                                 msg = self.mm.build(SHARE_DB7, self.port)
                                 self.send_msg((addr[0], peer_port), msg)
                                 self.sc_self.flag_stop_block_build = False
+                                self.sync_flag = True
 
                     else:
                         print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")

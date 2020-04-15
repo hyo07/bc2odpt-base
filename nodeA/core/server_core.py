@@ -311,6 +311,10 @@ class ServerCore(object):
                         ((int(new_block_chain[0]["block_number"]) == int(self.bm.chain[0]["block_number"])) or
                          (self.bm.chain[0]["block_number"] == "0")):
                     result, pool_4_orphan_blocks = self.bm.resolve_conflicts(new_block_chain)
+
+                    if result and self.cm.sync_flag:
+                        self.tp.justification_conflict(self.bm.chain[-6:])
+
                     if DEBUG:
                         print('blockchain received')
                     if result is not None:

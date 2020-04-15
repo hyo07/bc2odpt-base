@@ -70,3 +70,22 @@ class TransactionPool:
         with self.lock:
             print('transaction pool will be renewed to ...', transactions)
             self.transactions = transactions
+
+        # 分岐解消時、上書きされたブロックに含まれるtxがまだpoolに残っていないか などの辻褄を合わせる
+
+    def justification_conflict(self, blocks: list):
+        with self.lock:
+            for block in blocks:
+                for tx in json.loads(block["transactions"]):
+                    try:
+                        hash_tx = binascii.hexlify(hashlib.sha256(json.dumps(tx).encode('utf-8')).digest()).decode(
+                            'ascii')
+                    except json.decoder.JSONDecodeError:
+                        pass
+                    try:
+                        # tx poolに存在する場合,削除する 存在する場合txハッシュリストにも存在すると判断できる
+                        del self.transactions[hash_tx]
+                    except KeyError:
+                        # tx poolに無く,txハッシュリストにも存在しない場合がある. その場合は追加する
+                        if not hash_tx in self.hash_txs:
+                            self.hash_txs.append(hash_tx)
