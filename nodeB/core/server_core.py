@@ -163,7 +163,7 @@ class ServerCore(object):
             #     break
 
             block_num = level_param.get_block_num(PARAM_P) + len(self.bm.chain)
-            new_block = self.bb.generate_new_block(new_tp, self.prev_block_hash, str(block_num))
+            new_block = self.bb.generate_new_block(new_tp, self.prev_block_hash, str(block_num), ADDRESS)
 
             new_block_dic = new_block.to_dict()
             # if DEBUG:

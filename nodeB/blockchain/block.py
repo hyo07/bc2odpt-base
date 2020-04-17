@@ -9,7 +9,7 @@ from setting import *
 
 
 class Block:
-    def __init__(self, transactions, previous_block_hash, block_num):
+    def __init__(self, transactions, previous_block_hash, block_num, address):
         """
         Args:
             transaction: ブロック内にセットされるトランザクション
@@ -21,7 +21,7 @@ class Block:
         self.transactions = json.loads(snap_tr)
         self.previous_block = previous_block_hash
         self.b_num = block_num
-        # self.address = address
+        self.address = address
 
         current = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
         if DEBUG:
@@ -43,7 +43,8 @@ class Block:
             # 'transactions': list(map(json.dumps, self.transactions)),
             'transactions': json.dumps(self.transactions),
             'previous_block': self.previous_block,
-            # 'address': self.address,
+            'address': self.address,
+            'difficulty': DIFFICULTY,
         }
 
         if include_nonce:
@@ -74,7 +75,7 @@ class GenesisBlock(Block):
 
     def __init__(self):
         super().__init__(transactions='AD9B477B42B22CDF18B1335603D07378ACE83561D8398FBFC8DE94196C65D806',
-                         previous_block_hash=None, block_num="0")
+                         previous_block_hash=None, block_num="0", address=None)
 
     def to_dict(self, include_nonce=True):
         d = {
