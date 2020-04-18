@@ -166,13 +166,20 @@ class ServerCore(object):
             #     break
 
             block_num = level_param.get_block_num(PARAM_P) + len(self.bm.chain)
-            new_block = self.bb.generate_new_block(new_tp, self.prev_block_hash, str(block_num), ADDRESS)
+            new_block = self.bb.generate_new_block(new_tp, self.prev_block_hash, str(block_num), ADDRESS, self)
 
             new_block_dic = new_block.to_dict()
-            # if DEBUG:
-            #     print("new_block:", new_block_dic)
-            #     print("new_block type:", type(new_block_dic))
-            if int(new_block_dic["block_number"]) <= int(self.bm.chain[-1]["block_number"]):
+
+            if not new_block_dic:
+                print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+                print("■■■■■■■■■■■■■■ 負け！w ■■■■■■■■■■■■■■■")
+                print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+                self.flag_stop_block_build = False
+                self.is_bb_running = False
+                self.bb_timer = threading.Timer(CHECK_INTERVAL, self.__generate_block_with_tp)
+                self.bb_timer.start()
+                return
+            elif int(new_block_dic["block_number"]) <= int(self.bm.chain[-1]["block_number"]):
                 print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
                 print("■■■■■■■■■■■■■■ YOU LOSE ■■■■■■■■■■■■■■■")
                 print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
@@ -180,10 +187,8 @@ class ServerCore(object):
                 self.is_bb_running = False
                 self.bb_timer = threading.Timer(CHECK_INTERVAL, self.__generate_block_with_tp)
                 self.bb_timer.start()
-
-                # self.save_block_2_db()
-
                 return
+
             print("ブロック生成")
             print(new_block_dic)
 

@@ -9,7 +9,7 @@ from setting import *
 
 
 class Block:
-    def __init__(self, transactions, previous_block_hash, block_num, address):
+    def __init__(self, transactions, previous_block_hash, block_num, address, sc_self=None):
         """
         Args:
             transaction: ブロック内にセットされるトランザクション
@@ -22,6 +22,8 @@ class Block:
         self.previous_block = previous_block_hash
         self.b_num = block_num
         self.address = address
+        self.sc_self = sc_self
+        self.lose_flag = False
 
         current = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
         if DEBUG:
@@ -47,6 +49,9 @@ class Block:
             'difficulty': DIFFICULTY,
         }
 
+        if self.lose_flag:
+            return {}
+
         if include_nonce:
             d['nonce'] = self.nonce
         return d
@@ -56,6 +61,12 @@ class Block:
         i = 0
         suffix = '0' * difficulty
         while True:
+
+            if self.sc_self:
+                if int(self.b_num) <= int(self.sc_self.bm.chain[-1]["block_number"]):
+                    self.lose_flag = True
+                    return 0
+
             nonce = str(i)
             digest = binascii.hexlify(self._get_double_sha256((message + nonce).encode('utf-8'))).decode('ascii')
             if digest.endswith(suffix):
