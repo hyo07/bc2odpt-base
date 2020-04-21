@@ -51,3 +51,8 @@ def main():
 if __name__ == '__main__':
     main()
     # print("python {}/call_train_api.py".format(dirname))
+
+    # a = subpr_api()
+    # print(a)
+    # print(type(a))
+    # print(len(a))

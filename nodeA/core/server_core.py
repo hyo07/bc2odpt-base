@@ -128,12 +128,26 @@ class ServerCore(object):
 
         print("txs_hash len:", self.tp.get_txs_hash_len())
         if saved_bcs:
+            prev_ts = 0.0
+            ts_list = []
             for saved_bc in saved_bcs:
                 # genesis_blockはトランザクションがハッシュ値なのでloadsできない
                 try:
                     self.tp.clear_my_hash_txs(json.loads(saved_bc["transactions"]))
                 except json.decoder.JSONDecodeError:
                     pass
+
+                if prev_ts == 0.0:
+                    prev_ts = saved_bc["timestamp"]
+                else:
+                    ts_list.append(saved_bc["timestamp"] - prev_ts)
+                    prev_ts = saved_bc["timestamp"]
+
+            print("■■■■■■■■■■■■■■■■■■■")
+            print("平均ブロック生成時間")
+            print(sum(ts_list) / len(saved_bcs))
+            print("■■■■■■■■■■■■■■■■■■■")
+
         print("txs_hash len:", self.tp.get_txs_hash_len())
 
         # while self.flag_stop_block_build is not True:
@@ -191,6 +205,9 @@ class ServerCore(object):
 
             print("ブロック生成")
             print(new_block_dic)
+            if len(self.bm.chain) >= 2:
+                print("ブロック生成時間")
+                print(self.__calculate_gene_time(self.bm.chain[-2], self.bm.chain[-1]))
 
             self.bm.set_new_block(new_block.to_dict())
             self.prev_block_hash = self.bm.get_hash(new_block.to_dict())
@@ -291,6 +308,8 @@ class ServerCore(object):
                     if self.bm.set_new_block(new_block):
                         self.prev_block_hash = self.bm.get_hash(new_block)
                         self.tp.clear_my_transactions2(json.loads(new_block["transactions"]))
+                        print("ブロック生成時間")
+                        print(self.__calculate_gene_time(self.bm.chain[-2], self.bm.chain[-1]))
 
                     # self.bm.save_block_2_db()
 
@@ -343,3 +362,11 @@ class ServerCore(object):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(('8.8.8.8', 80))
         return s.getsockname()[0]
+
+    def __calculate_gene_time(self, prev_block: dict, new_block: dict):
+        prev_ts = prev_block["timestamp"]
+        # prev_ts = 1587105439.753553
+        new_ts = new_block["timestamp"]
+        # new_ts = 1587105451.5021372
+        gene_time = new_ts - prev_ts
+        return gene_time

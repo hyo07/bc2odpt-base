@@ -93,6 +93,7 @@ class GenesisBlock(Block):
             'block_number': "0",
             'transactions': self.transactions,
             'genesis_block': True,
+            'timestamp': self.timestamp,
         }
         if include_nonce:
             d['nonce'] = self.nonce

@@ -36,12 +36,6 @@ def call_api():
 
 if __name__ == "__main__":
     pass
-    # resp = call_api()
-    # print(resp)
+    resp = call_api()
+    print(resp)
     # print(sys.getsizeof(resp))
-
-    while True:
-        resp = call_api()
-        print(resp)
-        print(sys.getsizeof(resp))
-        sleep(120)
