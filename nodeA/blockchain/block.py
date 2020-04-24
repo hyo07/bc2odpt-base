@@ -60,12 +60,21 @@ class Block:
         # difficultyの数字を増やせば増やすほど、末尾で揃えなければならない桁数が増える。
         i = 0
         suffix = '0' * difficulty
+        count = 0
         while True:
 
             if self.sc_self:
                 if int(self.b_num) <= int(self.sc_self.bm.chain[-1]["block_number"]):
                     self.lose_flag = True
                     return 0
+
+            count += 1
+            if count % 200000 == 0:
+                print("Mining!")
+                if self.sc_self:
+                    print(self.sc_self.bm.chain)
+                    print("timestamp:", self.timestamp)
+                    print()
 
             nonce = str(i)
             digest = binascii.hexlify(self._get_double_sha256((message + nonce).encode('utf-8'))).decode('ascii')

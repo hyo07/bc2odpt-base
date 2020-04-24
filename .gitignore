@@ -10,3 +10,5 @@ trash
 !.gitkeep
 test.txt
 nodeX_*
+clientX_*
+__pycache__/

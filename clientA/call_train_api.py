@@ -17,6 +17,9 @@ def call_api():
     for re in resp_j:
         delay = re.get("odpt:delay")
         if (delay != 0) and delay:
+        # if not delay:
+        #     pass
+        # elif (delay >= 300) and delay:
             buses.append(
                 {
                     "date": re.get("dc:date"),

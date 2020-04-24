@@ -45,7 +45,7 @@ def main():
         # subpr = subpr_api()
         # for data in subpr:
         #     my_p2p_client.send_message_to_my_core_node(MSG_NEW_TRANSACTION, json.dumps(data))
-        sleep(30)
+        sleep(60)
 
 
 if __name__ == '__main__':

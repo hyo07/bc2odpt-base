@@ -10,7 +10,8 @@ class TransactionPool:
         print('Initializing TransactionPool...')
         # self.transactions = []
         self.transactions = {}
-        self.hash_txs = []
+        # self.hash_txs = []
+        self.hash_txs = set()
         self.lock = threading.Lock()
 
     # tx poolに新規追加
@@ -27,8 +28,8 @@ class TransactionPool:
             for tx in transaction:
                 hash_tx = binascii.hexlify(hashlib.sha256(json.dumps(tx).encode('utf-8')).digest()).decode('ascii')
                 if not hash_tx in self.hash_txs:
-                    self.hash_txs.append(hash_tx)
-                    # self.transactions.append(tx)
+                    # self.hash_txs.append(hash_tx)
+                    self.hash_txs.add(hash_tx)
                     self.transactions[hash_tx] = tx
                     flag = True
         return flag
@@ -40,7 +41,8 @@ class TransactionPool:
             for tx in transaction:
                 hash_tx = binascii.hexlify(hashlib.sha256(json.dumps(tx).encode('utf-8')).digest()).decode('ascii')
                 if not hash_tx in self.hash_txs:
-                    self.hash_txs.append(hash_tx)
+                    # self.hash_txs.append(hash_tx)
+                    self.hash_txs.add(hash_tx)
                     new_txs.append(tx)
         return new_txs
 
@@ -108,4 +110,5 @@ class TransactionPool:
                     except KeyError:
                         # tx poolに無く,txハッシュリストにも存在しない場合がある. その場合は追加する
                         if not hash_tx in self.hash_txs:
-                            self.hash_txs.append(hash_tx)
+                            # self.hash_txs.append(hash_tx)
+                            self.hash_txs.add(hash_tx)
