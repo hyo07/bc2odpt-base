@@ -71,7 +71,8 @@ class TransactionPool:
                 hash_tx = binascii.hexlify(hashlib.sha256(json.dumps(tx).encode('utf-8')).digest()).decode('ascii')
                 try:
                     self.hash_txs.remove(hash_tx)
-                except ValueError:
+                # except ValueError:
+                except KeyError:
                     pass
 
     def get_stored_transactions(self):

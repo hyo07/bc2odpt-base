@@ -37,7 +37,7 @@ def main():
             'sender': 's{}'.format(str(count)),
             'recipient': 'r{}'.format(str(count)),
             'value': value,
-            'client_address': "clientA",
+            'client_address': ADDRESS,
         })
         if count % 10 == 0:
             my_p2p_client.send_message_to_my_core_node(MSG_NEW_TRANSACTION, json.dumps(transactions))
