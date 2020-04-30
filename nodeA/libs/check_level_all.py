@@ -68,7 +68,9 @@ def is_valid_block(prev_block_hash, block, difficulty=3):
     # ブロック単体の正当性を検証する
     suffix = '0' * difficulty
     nonce = block['nonce']
+    transactions = block['transactions']
     del block['nonce']
+    del block['transactions']
     # print(block)
 
     message = json.dumps(block, sort_keys=True)
@@ -85,6 +87,7 @@ def is_valid_block(prev_block_hash, block, difficulty=3):
         if digest.endswith(suffix):
             # print('OK, this seems valid block')
             block['nonce'] = nonce
+            block['transactions'] = transactions
             return True
         else:
             # print('Invalid block (bad nonce)')
@@ -159,10 +162,13 @@ if __name__ == "__main__":
 
     read_bc = json_db(P1)
     print(read_bc)
+    # with open("/Users/yutaka/python/research/BC2ODPT/nodeA/4-show.json", "w") as f:
+    #     f.write(str(read_bc))
+
     print(len(read_bc))
     print(is_valid_chain(read_bc))
     # print(valid_all(P1))
-    #
+
     # with open("test.txt", "w") as f:
     #     f.write(str(read_bc))
 
@@ -175,5 +181,17 @@ if __name__ == "__main__":
     # print(J1 == J2)
 
     print(comparison_ldbs(P1, P2, 5))
-    print(comparison_ldbs(P1, P3, 5))
+    # print(comparison_ldbs(P1, P3, 5))
     # print(comparison_ldbs(P1, P4, 20))
+
+    # a = []
+    # for i in range(len(read_bc) - 1):
+    #     try:
+    #         tx = json.loads(read_bc[i]["transactions"])
+    #         tx_count = len(tx)
+    #     except json.decoder.JSONDecodeError:
+    #         tx_count = 0
+    #     ts = read_bc[i + 1]["timestamp"] - read_bc[i]["timestamp"]
+    #     a.append(ts)
+    #     print(ts)
+    # print("平均:", sum(a)/len(a))

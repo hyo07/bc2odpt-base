@@ -67,7 +67,9 @@ def is_valid_block(prev_block_hash, block, difficulty=3):
     # ブロック単体の正当性を検証する
     suffix = '0' * difficulty
     nonce = block['nonce']
+    transactions = block['transactions']
     del block['nonce']
+    del block['transactions']
     # print(block)
 
     message = json.dumps(block, sort_keys=True)
@@ -84,6 +86,7 @@ def is_valid_block(prev_block_hash, block, difficulty=3):
         if digest.endswith(suffix):
             # print('OK, this seems valid block')
             block['nonce'] = nonce
+            block['transactions'] = transactions
             return True
         else:
             # print('Invalid block (bad nonce)')

@@ -29,7 +29,7 @@ STATE_SHUTTING_DOWN = 3
 
 # TransactionPoolの確認頻度
 # 動作チェック用に数字小さくしてるけど、600(10分)くらいはあって良さそ
-CHECK_INTERVAL = 10
+CHECK_INTERVAL = 0
 
 DEBUG = True
 

@@ -31,6 +31,7 @@ def call_api():
                     # "originStation": re.get("odpt:originStation"),
                     # "destinationStation": re.get("odpt:destinationStation"),
                     "delay": re.get("odpt:delay"),
+                    'client_address': ADDRESS,
                 }
             )
 

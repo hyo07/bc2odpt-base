@@ -42,8 +42,8 @@ class Block:
         d = {
             'block_number': str(self.b_num),
             'timestamp': self.timestamp,
-            # 'transactions': list(map(json.dumps, self.transactions)),
-            'transactions': json.dumps(self.transactions),
+            # 'transactions': json.dumps(self.transactions),
+            "merkle_root": self._gene_merkle(json.dumps(self.transactions)),
             'previous_block': self.previous_block,
             'address': self.address,
             'difficulty': DIFFICULTY,
@@ -54,6 +54,8 @@ class Block:
 
         if include_nonce:
             d['nonce'] = self.nonce
+            d["transactions"] = json.dumps(self.transactions)
+
         return d
 
     def _compute_nonce_for_pow(self, message, difficulty=DIFFICULTY):
@@ -72,7 +74,9 @@ class Block:
             if count % 200000 == 0:
                 print("Mining!")
                 if self.sc_self:
-                    print(self.sc_self.bm.chain)
+                    if count % 2000000 == 0:
+                        print(self.sc_self.bm.chain)
+                    print("latest_block_num:", self.b_num)
                     print("timestamp:", self.timestamp)
                     print()
 
@@ -85,6 +89,30 @@ class Block:
 
     def _get_double_sha256(self, message):
         return hashlib.sha256(hashlib.sha256(message).digest()).digest()
+
+    def _gene_merkle(self, tx_list: str):
+        tx_list = [binascii.hexlify(hashlib.sha256(json.dumps(tx).encode('utf-8')).digest()).decode('ascii') for tx in
+                   json.loads(tx_list)]
+
+        if not tx_list:
+            return binascii.hexlify(hashlib.sha256(json.dumps(tx_list).encode('utf-8')).digest()).decode('ascii')
+
+        while len(tx_list) > 1:
+            latest_merkle_list = []
+
+            if len(tx_list) % 2 == 1:
+                tx_list.append(tx_list[-1])
+
+            for i in range(0, len(tx_list), 2):
+                one_hash = binascii.hexlify(hashlib.sha256(tx_list[i].encode('utf-8')).digest()).decode('ascii')
+                two_hash = binascii.hexlify(hashlib.sha256(tx_list[i + 1].encode('utf-8')).digest()).decode('ascii')
+                new_hash = binascii.hexlify(hashlib.sha256((one_hash + two_hash).encode('utf-8')).digest()).decode(
+                    'ascii')
+                latest_merkle_list.append(new_hash)
+
+            tx_list = latest_merkle_list
+
+        return tx_list[0]
 
 
 class GenesisBlock(Block):

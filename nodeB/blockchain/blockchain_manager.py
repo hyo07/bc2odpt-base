@@ -181,6 +181,7 @@ class BlockchainManager:
         block_4_pow = copy.deepcopy(block)
         nonce = block_4_pow['nonce']
         del block_4_pow['nonce']
+        del block_4_pow['transactions']
         if DEBUG:
             print(block_4_pow)
 
