@@ -42,12 +42,17 @@ class Block:
         d = {
             'block_number': str(self.b_num),
             'timestamp': self.timestamp,
-            # 'transactions': json.dumps(self.transactions),
-            "merkle_root": self._gene_merkle(json.dumps(self.transactions)),
+            # "merkle_root": self._gene_merkle(json.dumps(self.transactions)),
+            "nTx": len(self.transactions),
             'previous_block': self.previous_block,
             'address': self.address,
             'difficulty': DIFFICULTY,
         }
+
+        if self.transactions:
+            d["merkle_root"] = self._gene_merkle(json.dumps(self.transactions))
+        else:
+            d["merkle_root"] = ""
 
         if self.lose_flag:
             return {}

@@ -42,7 +42,7 @@ def main():
         if count % 10 == 0:
             my_p2p_client.send_message_to_my_core_node(MSG_NEW_TRANSACTION, json.dumps(transactions))
             transactions = []
-            sleep(10)
+            sleep(30)
             # count = 0
         else:
             sleep(1)

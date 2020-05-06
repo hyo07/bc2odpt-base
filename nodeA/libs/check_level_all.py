@@ -161,7 +161,7 @@ if __name__ == "__main__":
     P4 = "/Users/yutaka/python/research/BC2ODPT/nodeX_4/db/ldb/"
 
     read_bc = json_db(P1)
-    print(read_bc)
+    # print(read_bc)
     # with open("/Users/yutaka/python/research/BC2ODPT/nodeA/4-show.json", "w") as f:
     #     f.write(str(read_bc))
 
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     # J2 = json_db(P2)
     # print(J1 == J2)
 
-    print(comparison_ldbs(P1, P2, 5))
+    print(comparison_ldbs(P1, P2, 10))
     # print(comparison_ldbs(P1, P3, 5))
     # print(comparison_ldbs(P1, P4, 20))
 
