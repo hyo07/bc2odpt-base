@@ -18,11 +18,16 @@ class BlockchainManager:
         print('Initializing BlockchainManager...')
         self.chain = []
         self.lock = threading.Lock()
-        self.__set_my_genesis_block(genesis_block)
+        if genesis_block:
+            self.__set_my_genesis_block(genesis_block)
 
     def __set_my_genesis_block(self, block):
         self.genesis_block = block
         self.chain.append(block)
+
+    def set_reconnect_block(self, block):
+        with self.lock:
+            self.chain.append(block)
 
     def set_new_block(self, block):
         with self.lock:
@@ -152,7 +157,8 @@ class BlockchainManager:
         # ブロックを全て取り出す。時系列を考えての有効無効判定などはしないかなり簡易な処理。
         if (new_chain_len > mychain_len) and (new_chain_num > mychain_num) and \
                 ((int(self.chain[0]["block_number"]) == int(
-                    chain[0]["block_number"]) or (self.chain[0]["block_number"] == "0"))):
+                    chain[0]["block_number"]) or (self.chain[0]["block_number"] == "0") or (
+                          len(self.chain) < SAVE_BORDER_HALF))):
             # if new_chain_len > mychain_len:
             # for b in pool_4_orphan_blocks: #TODO orphan_block及びトランザクションの重複チェックが出来次第
             #     for b2 in chain:

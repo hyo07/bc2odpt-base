@@ -69,10 +69,11 @@ class Block:
         suffix = '0' * difficulty
         while True:
 
-            if self.sc_self:
-                if int(self.b_num) <= int(self.sc_self.bm.chain[-1]["block_number"]):
-                    self.lose_flag = True
-                    return 0
+            if self.sc_self and self.sc_self.bm.chain:
+                if len(self.sc_self.bm.chain) > 1:
+                    if int(self.b_num) <= int(self.sc_self.bm.chain[-1]["block_number"]):
+                        self.lose_flag = True
+                        return 0
 
             nonce = str(i)
             digest = binascii.hexlify(self._get_double_sha256((message + nonce).encode('utf-8'))).decode('ascii')

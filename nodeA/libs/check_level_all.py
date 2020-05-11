@@ -166,7 +166,7 @@ if __name__ == "__main__":
     #     f.write(str(read_bc))
 
     print(len(read_bc))
-    print(is_valid_chain(read_bc))
+    # print(is_valid_chain(read_bc))
     # print(valid_all(P1))
 
     # with open("test.txt", "w") as f:

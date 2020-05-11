@@ -261,6 +261,7 @@ class ConnectionManager:
                         print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
                         if self.flag == 0:
                             print("■■■■■■■■ Start Share  ■■■■■■■■■")
+                            self.sc_self.format_bc()
                             self.sc_self.get_all_chains_for_resolve_conflict()
                             self.flag = 1
 

@@ -70,10 +70,11 @@ class Block:
         count = 0
         while True:
 
-            if self.sc_self:
-                if int(self.b_num) <= int(self.sc_self.bm.chain[-1]["block_number"]):
-                    self.lose_flag = True
-                    return 0
+            if self.sc_self and self.sc_self.bm.chain:
+                if len(self.sc_self.bm.chain) > 1:
+                    if int(self.b_num) <= int(self.sc_self.bm.chain[-1]["block_number"]):
+                        self.lose_flag = True
+                        return 0
 
             count += 1
             if count % 200000 == 0:

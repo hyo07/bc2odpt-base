@@ -49,9 +49,18 @@ class ServerCore(object):
         self.bb = BlockBuilder()
         self.flag_stop_block_build = True
         self.is_bb_running = False
-        my_genesis_block = self.bb.generate_genesis_block()
-        self.bm = BlockchainManager(my_genesis_block.to_dict())
-        self.prev_block_hash = self.bm.get_hash(my_genesis_block.to_dict())
+        if main_level.get_genesis(LDB_P):
+            self.bm = BlockchainManager()
+            latest_dbd_block = main_level.get_latest_block(LDB_P)
+            self.prev_block_hash = self.bm.get_hash(latest_dbd_block)
+            block_num = level_param.get_block_num(PARAM_P) + len(self.bm.chain)
+            new_block = self.bb.generate_new_block([], self.prev_block_hash, str(block_num), ADDRESS, self)
+            self.bm.set_reconnect_block(new_block.to_dict())
+            self.prev_block_hash = self.bm.get_hash(new_block.to_dict())
+        else:
+            my_genesis_block = self.bb.generate_genesis_block()
+            self.bm = BlockchainManager(my_genesis_block.to_dict())
+            self.prev_block_hash = self.bm.get_hash(my_genesis_block.to_dict())
         self.tp = TransactionPool()
 
         if core_node_host and core_node_port:
@@ -114,7 +123,7 @@ class ServerCore(object):
         #         print("保存しました")
         #         print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
 
-        self.flag_stop_block_build = False
+        # self.flag_stop_block_build = False
 
     def __generate_block_with_tp(self):
         if DEBUG:
@@ -253,8 +262,8 @@ class ServerCore(object):
 
                 if self.bm.is_valid_block(self.prev_block_hash, new_block):
                     # ブロック生成が行われていたら一旦停止してあげる（threadingなのでキレイに止まらない場合あり）
-                    if self.is_bb_running:
-                        self.flag_stop_block_build = True
+                    # if self.is_bb_running:
+                    #     self.flag_stop_block_build = True
 
                     # self.prev_block_hash = self.bm.get_hash(new_block)
                     # self.bm.set_new_block(new_block)
@@ -265,13 +274,13 @@ class ServerCore(object):
 
                     # self.save_block_2_db()
 
-                    self.flag_stop_block_build = False  # TODO 試しで追加
+                    # self.flag_stop_block_build = False  # TODO 試しで追加
 
                 else:
                     # ブロックとして不正ではないがVerifyにコケる場合は自分がorphanブロックを生成している
                     # 可能性がある
-                    if self.is_bb_running:  # TODO 試しで追加
-                        self.flag_stop_block_build = True
+                    # if self.is_bb_running:  # TODO 試しで追加
+                    #     self.flag_stop_block_build = True
 
                     self.get_all_chains_for_resolve_conflict()
 
@@ -287,7 +296,7 @@ class ServerCore(object):
 
                 if (int(new_block_chain[-1]["block_number"]) > int(self.bm.chain[-1]["block_number"])) and \
                         ((int(new_block_chain[0]["block_number"]) == int(self.bm.chain[0]["block_number"])) or
-                         (self.bm.chain[0]["block_number"] == "0")):
+                         (self.bm.chain[0]["block_number"] == "0") or (len(self.bm.chain) < SAVE_BORDER_HALF)):
                     result, pool_4_orphan_blocks = self.bm.resolve_conflicts(new_block_chain)
 
                     if result and self.cm.sync_flag:
@@ -306,7 +315,7 @@ class ServerCore(object):
                         if DEBUG:
                             print('Received blockchain is useless...')
 
-                self.flag_stop_block_build = False  # TODO 試しで追加
+                # self.flag_stop_block_build = False  # TODO 試しで追加
 
             elif msg[2] == MSG_ENHANCED:
                 # P2P Network を単なるトランスポートして使っているアプリケーションが独自拡張したメッセージはここで処理する。SimpleBitcoin としてはこの種別は使わない
@@ -316,3 +325,9 @@ class ServerCore(object):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(('8.8.8.8', 80))
         return s.getsockname()[0]
+
+    def format_bc(self):
+        oldest_memory_block = self.bm.chain[0]
+        self.bm.chain = self.bm.chain[:1]
+        self.bm.set_reconnect_block(oldest_memory_block)
+        self.prev_block_hash = self.bm.get_hash(oldest_memory_block)
