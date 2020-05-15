@@ -1,6 +1,6 @@
 DEBUG = True
 
-API_KEY = "1IdSCGCfsWGEGSJZHnkV6GLLBt-niuqe6YuAd_EbEQc"
+API_KEY = "ODPT APIkey"
 ADDRESS = "clientA"
 
 HOST_PORT = 50085
