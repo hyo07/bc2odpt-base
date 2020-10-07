@@ -62,14 +62,16 @@ def valid_all(ldb_p):
 
 # -------------------------------------------------------------------------------------------------------------------------
 
-def is_valid_block(prev_block_hash, block, difficulty=3):
+# 難易度調整版
+def is_valid_block(prev_block_hash, block):
     # print("prev_block_hash:", prev_block_hash)
     # ブロック単体の正当性を検証する
-    suffix = '0' * difficulty
     nonce = block['nonce']
     transactions = block['transactions']
+    addrs = block["addrs"]
     del block['nonce']
     del block['transactions']
+    del block['addrs']
     # print(block)
 
     message = json.dumps(block, sort_keys=True)
@@ -83,16 +85,12 @@ def is_valid_block(prev_block_hash, block, difficulty=3):
         return False
     else:
         digest = binascii.hexlify(_get_double_sha256((message + nonce).encode('utf-8'))).decode('ascii')
-        if digest.endswith(suffix):
-            # print('OK, this seems valid block')
+        if int(digest, 16) <= int(block["target"], 16):
             block['nonce'] = nonce
             block['transactions'] = transactions
+            block["addrs"] = addrs
             return True
         else:
-            # print('Invalid block (bad nonce)')
-            # print('nonce :', nonce)
-            # print('digest :', digest)
-            # print('suffix', suffix)
             return False
 
 
@@ -124,17 +122,3 @@ def get_hash(block):
 
 if __name__ == "__main__":
     pass
-    # P1 = "/Users/yutaka/python/python3.6.5/BC2ODPT/nodeA/db/ldb/"
-    # P2 = "/Users/yutaka/python/python3.6.5/BC2ODPT/nodeB/db/ldb/"
-    #
-    # read_bc = json_db(P1)
-    # print(read_bc)
-    # print(is_valid_chain(read_bc))
-    # print(valid_all(P1))
-
-    # with open("memo.json", "w") as f:
-    #     f.write(json.dumps(read_bc))
-    # print("---------------------------------------------")
-    # J1 = json_db(P1)
-    # J2 = json_db(P2)
-    # print(J1 == J2)

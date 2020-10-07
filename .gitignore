@@ -12,3 +12,7 @@ test.txt
 nodeX_*
 clientX_*
 __pycache__/
+*ignore*
+*.log
+*.csv
+*.txt

@@ -444,13 +444,19 @@ class ConnectionManager:
         param:
             target : 有効ノード確認メッセージの送り先となるノードの接続情報（IPアドレスとポート番号）
         """
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((target))
-            msg_type = MSG_PING
-            msg = self.mm.build(msg_type)
-            s.sendall(msg.encode('utf-8'))
-            s.close()
-            return True
-        except OSError:
-            return False
+        count = 0
+        while count < 15:
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect((target))
+                msg_type = MSG_PING
+                msg = self.mm.build(msg_type)
+                s.sendall(msg.encode('utf-8'))
+                s.close()
+                return True
+            except:
+                count += 1
+                sleep(1)
+                if count >= 10:
+                    return False
+        return False

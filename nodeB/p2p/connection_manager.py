@@ -83,16 +83,17 @@ class ConnectionManager:
     def get_message_text(self, msg_type, payload=None):
         """
         指定したメッセージ種別のプロトコルメッセージを作成して返却する
-        
+
         params:
             msg_type : 作成したいメッセージの種別をMessageManagerの規定に従い指定
             payload : メッセージにデータを格納したい場合に指定する
-        
+
         return:
             msgtxt : MessageManagerのbuild_messageによって生成されたJSON形式のメッセージ
         """
         msgtxt = self.mm.build(msg_type, self.port, payload)
-        print('generated_msg:', msgtxt)
+        if DEBUG:
+            print('generated_msg:', msgtxt)
         return msgtxt
 
     # 指定されたノードに対してメッセージを送信する
@@ -100,28 +101,34 @@ class ConnectionManager:
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect(peer)
-            print(peer)
+            if DEBUG:
+                print(peer)
             s.sendall(msg.encode('utf-8'))
             s.close()
         except OSError:
-            print('Connection failed for peer : ', peer)
+            if DEBUG:
+                print('Connection failed for peer : ', peer)
             self.__remove_peer(peer)
 
     # Coreノードリストに登録されている全てのノードに対して同じメッセージをブロードキャストする
     def send_msg_to_all_peer(self, msg):
-        print('send_msg_to_all_peer was called!')
+        if DEBUG:
+            print('send_msg_to_all_peer was called!')
         current_list = self.core_node_set.get_list()
         for peer in current_list:
             if peer != (self.host, self.port):
-                print("message will be sent to ... ", peer)
+                if DEBUG:
+                    print("message will be sent to ... ", peer)
                 self.send_msg(peer, msg)
 
     # Edgeノードリストに登録されている全てのノードに対して同じメッセージをブロードキャストする
     def send_msg_to_all_edge(self, msg):
-        print('send_msg_to_all_edge was called! ')
+        if DEBUG:
+            print('send_msg_to_all_edge was called! ')
         current_list = self.edge_node_set.get_list()
         for edge in current_list:
-            print("message will be sent to ... ", edge)
+            if DEBUG:
+                print("message will be sent to ... ", edge)
             self.send_msg(edge, msg)
 
     # 終了前の処理としてソケットを閉じる
@@ -184,7 +191,8 @@ class ConnectionManager:
             return
 
         result, reason, cmd, peer_port, payload = self.mm.parse(data_sum)
-        print(result, reason, cmd, peer_port, payload)
+        if DEBUG:
+            print(result, reason, cmd, peer_port, payload)
         status = (result, reason)
 
         if status == ('error', ERR_PROTOCOL_UNMATCH):
@@ -436,13 +444,19 @@ class ConnectionManager:
         param:
             target : 有効ノード確認メッセージの送り先となるノードの接続情報（IPアドレスとポート番号）
         """
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((target))
-            msg_type = MSG_PING
-            msg = self.mm.build(msg_type)
-            s.sendall(msg.encode('utf-8'))
-            s.close()
-            return True
-        except OSError:
-            return False
+        count = 0
+        while count < 15:
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect((target))
+                msg_type = MSG_PING
+                msg = self.mm.build(msg_type)
+                s.sendall(msg.encode('utf-8'))
+                s.close()
+                return True
+            except:
+                count += 1
+                sleep(1)
+                if count >= 10:
+                    return False
+        return False

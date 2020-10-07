@@ -3,25 +3,9 @@ from glob import glob
 import json
 import binascii
 import hashlib
+import pprint
 
 
-# # ブロック番号とvalueを表示
-# def print_db():
-#     p = "../db/1/"
-#     db_list = list(glob(p + "block*.ldb"))
-#     s_l = []
-#     for db_name in sorted(db_list):
-#         db = plyvel.DB(str(db_name), create_if_missing=False)
-#         for k, v in db:
-#             key = k.decode()
-#             val = v.decode()
-#             mix = key + " => " + str(json.loads(val))
-#             s_l.append(mix)
-#
-#     for s in sorted(s_l):
-#         print(s)
-#
-#
 # json形式で読み込み
 def json_db(p):
     # p = "../db/2/ldb/"
@@ -63,73 +47,39 @@ def valid_all(ldb_p):
 
 # -------------------------------------------------------------------------------------------------------------------------
 
-# def is_valid_block(prev_block_hash, block, difficulty=3):
-#     # print("prev_block_hash:", prev_block_hash)
-#     # ブロック単体の正当性を検証する
-#     suffix = '0' * difficulty
-#     nonce = block['nonce']
-#     transactions = block['transactions']
-#     addrs = block["addrs"]
-#     del block['nonce']
-#     del block['transactions']
-#     del block['addrs']
-#     # print(block)
-#
-#     message = json.dumps(block, sort_keys=True)
-#     # print("message", message)
-#     nonce = str(nonce)
-#
-#     if block['previous_block'] != prev_block_hash:
-#         # print('Invalid block (bad previous_block)')
-#         # print(block['previous_block'])
-#         # print(prev_block_hash)
-#         return False
-#     else:
-#         digest = binascii.hexlify(_get_double_sha256((message + nonce).encode('utf-8'))).decode('ascii')
-#         if digest.endswith(suffix):
-#             # print('OK, this seems valid block')
-#             block['nonce'] = nonce
-#             block['transactions'] = transactions
-#             block["addrs"] = addrs
-#             return True
-#         else:
-#             # print('Invalid block (bad nonce)')
-#             # print('nonce :', nonce)
-#             # print('digest :', digest)
-#             # print('suffix', suffix)
-#             return False
-
-
 # 難易度調整版
 def is_valid_block(prev_block_hash, block):
-    # print("prev_block_hash:", prev_block_hash)
     # ブロック単体の正当性を検証する
     nonce = block['nonce']
     transactions = block['transactions']
-    addrs = block["addrs"]
+    # addrs = block["addrs"]
     del block['nonce']
     del block['transactions']
-    del block['addrs']
-    # print(block)
+    # del block['addrs']
 
     message = json.dumps(block, sort_keys=True)
-    # print("message", message)
     nonce = str(nonce)
 
     if block['previous_block'] != prev_block_hash:
-        # print('Invalid block (bad previous_block)')
-        # print(block['previous_block'])
-        # print(prev_block_hash)
         return False
     else:
         digest = binascii.hexlify(_get_double_sha256((message + nonce).encode('utf-8'))).decode('ascii')
-        if int(digest, 16) <= int(block["target"], 16):
-            block['nonce'] = nonce
-            block['transactions'] = transactions
-            block["addrs"] = addrs
-            return True
-        else:
-            return False
+        try:
+            if int(digest, 16) <= int(block["target"], 16):
+                block['nonce'] = nonce
+                block['transactions'] = transactions
+                # block["addrs"] = addrs
+                return True
+            else:
+                return False
+        except KeyError:
+            if int(digest, 16) <= int(block["difficulty"], 16):
+                block['nonce'] = nonce
+                block['transactions'] = transactions
+                # block["addrs"] = addrs
+                return True
+            else:
+                return False
 
 
 def is_valid_chain(chain):
@@ -154,7 +104,6 @@ def _get_double_sha256(message):
 
 def get_hash(block):
     block_string = json.dumps(block, sort_keys=True)
-    # print("BlockchainManager: block_string", block_string)
     return binascii.hexlify(_get_double_sha256(block_string.encode('utf-8'))).decode('ascii')
 
 
@@ -193,8 +142,6 @@ def comparison_ldbs(p1, p2, border=10):
 
 # -----------------------------------------------------------------------------------------
 def read_ones_db(p):
-    # p = "../db/2/ldb/"
-    # p = "../db/1/ldb/"
     db_list = list(glob(p + "block*.ldb"))
     total_tx = 0
     total_addr = 0
@@ -203,6 +150,17 @@ def read_ones_db(p):
     clientC = 0
     clientD = 0
     clientE = 0
+    clientF = 0
+    clientG = 0
+    clientH = 0
+    clientI = 0
+    clientJ = 0
+    clientA2 = 0
+    clientB2 = 0
+    clientC2 = 0
+    clientD2 = 0
+    clientE2 = 0
+    clientC3 = 0
     for db_name in sorted(db_list):
         db = plyvel.DB(str(db_name), create_if_missing=False)
         for k, v in db:
@@ -224,55 +182,122 @@ def read_ones_db(p):
                         clientD += 1
                     if "clientE" in in_addr["addrs"]:
                         clientE += 1
+                    if "clientF" in in_addr["addrs"]:
+                        clientF += 1
+                    if "clientG" in in_addr["addrs"]:
+                        clientG += 1
+                    if "clientH" in in_addr["addrs"]:
+                        clientH += 1
+                    if "clientI" in in_addr["addrs"]:
+                        clientI += 1
+                    if "clientJ" in in_addr["addrs"]:
+                        clientJ += 1
+                    if "clientA2" in in_addr["addrs"]:
+                        clientA2 += 1
+                    if "clientB2" in in_addr["addrs"]:
+                        clientB2 += 1
+                    if "clientC2" in in_addr["addrs"]:
+                        clientC2 += 1
+                    if "clientD2" in in_addr["addrs"]:
+                        clientD2 += 1
+                    if "clientE2" in in_addr["addrs"]:
+                        clientE2 += 1
+                    if "clientC3" in in_addr["addrs"]:
+                        clientC3 += 1
         db.close()
     # print(re_s)
-    return {"total_tx": total_tx, "total_addr": total_addr,
-            "clientA": clientA, "clientB": clientB, "clientC": clientC, "clientD": clientD, "clientE": clientE}
+    re_dic = {
+        "total_tx": total_tx, "total_addr": total_addr,
+        "clientA": clientA, "clientB": clientB, "clientC": clientC, "clientD": clientD, "clientE": clientE,
+        "clientF": clientF, "clientG": clientG, "clientH": clientH, "clientI": clientI, "clientJ": clientJ,
+        "clientA2": clientA2, "clientB2": clientB2, "clientC2": clientC2, "clientD2": clientD2, "clientE2": clientE2,
+        "clientC3": clientC3,
+    }
+    return re_dic
+
+
+def read_json_file(path="test.json"):
+    with open(path, "r") as f:
+        text = f.read()
+        try:
+            block_chain = json.loads(text)
+        except:
+            # re_hoge = text.replace("\'", "\"").replace("True", "true").replace("False", "false")
+            # block_chain = json.loads(re_hoge)
+            block_chain = eval(text)
+    return block_chain
+
+
+def read_logs(path, limit: int):
+    import csv
+    re_list = []
+    log_pattern = ["*generate*", "*longest*", "*majority*"]
+    for log_type in log_pattern:
+        logs = glob(path + log_type)
+        re_dic = {}
+        for log in sorted(logs):
+            file_name = log.split("/")[-1]
+            with open(log, "r") as f:
+                reader = csv.reader(f)
+                count = 0
+                for row in reader:
+                    if int(row[1]) <= limit:
+                        count += 1
+                    else:
+                        break
+                re_dic[file_name] = count
+        re_list.append(re_dic)
+    return re_list
 
 
 if __name__ == "__main__":
     pass
-    P1 = "/Users/yutaka/python/research/BC2ODPT/nodeA/db/ldb/"
-    P2 = "/Users/yutaka/python/research/BC2ODPT/nodeB/db/ldb/"
-    P3 = "/Users/yutaka/python/research/BC2ODPT/nodeX_3/db/ldb/"
-    P4 = "/Users/yutaka/python/research/BC2ODPT/nodeX_4/db/ldb/"
-    P5 = "/Users/yutaka/python/research/BC2ODPT/nodeX_5/db/ldb/"
+
+    import os
+
+    root_P = os.path.dirname(os.path.abspath(__file__)) + "/.."
+    P1 = root_P + "/nodeA/db/ldb/"
+    P2 = root_P + "/nodeB/db/ldb/"
+    P3 = root_P + "/nodeX_3/db/ldb/"
+    P4 = root_P + "/nodeX_4/db/ldb/"
+    P5 = root_P + "/nodeX_5/db/ldb/"
 
     read_bc = json_db(P1)
+    # file読み
+    # file_name = root_P + "/logs/20200929-1.json"
+    # read_bc = read_json_file(file_name)
+
     # print(read_bc)
-    # with open("/Users/yutaka/python/research/BC2ODPT/logs/log_show.json", "w") as f:
-    #     f.write(json.dumps(read_bc))
-
     print(len(read_bc))
-    print(is_valid_chain(read_bc))
-    # print(valid_all(P1))
 
-    # with open("test.txt", "w") as f:
-    #     f.write(str(read_bc))
-
-    # with open("memo.jslon", "w") as f:
+    # with open(root_P + "/logs/20200924-2.json", "w") as f:
     #     f.write(json.dumps(read_bc))
 
+    # print(len(read_bc))
+    print(is_valid_chain(read_bc))
+    # # print(valid_all(P1))
+    #
     print("---------------------------------------------")
-    # J1 = json_db(P1)
-    # J2 = json_db(P2)
-    # print(J1 == J2)
+    #
+    # diffチェック
+    # print(comparison_ldbs(P1, P2, 20))
+    # print(comparison_ldbs(P1, P3, 20))
+    # print(comparison_ldbs(P1, P4, 20))
+    # print(comparison_ldbs(P1, P5, 20))
 
-    print(comparison_ldbs(P1, P2, 20))
-    print(comparison_ldbs(P1, P3, 20))
-    print(comparison_ldbs(P1, P4, 20))
-    print(comparison_ldbs(P1, P5, 20))
+    gene_time_list = []
+    ts = 0
+    for block in read_bc:
+        if ts != 0:
+            sa = block["timestamp"] - ts
+            gene_time_list.append(sa)
+        ts = block["timestamp"]
+    print("平均:", sum(gene_time_list) / len(gene_time_list))
 
-    # a = []
-    # for i in range(len(read_bc) - 1):
+    # for block in read_bc:
     #     try:
-    #         tx = json.loads(read_bc[i]["transactions"])
-    #         tx_count = len(tx)
-    #     except json.decoder.JSONDecodeError:
-    #         tx_count =
-    #     ts = read_bc[i + 1]["timestamp"] - read_bc[i]["timestamp"]
-    #     a.append(ts)
-    #     print(ts)
-    # print("平均:", sum(a)/len(a))
+    #         print(float(int(block["target"], 16)))
+    #     except KeyError:
+    #         print(float(int(block["difficulty"], 16)))
 
-    print(read_ones_db(P1))
+    pprint.pprint(read_logs(root_P + "/logs/", len(read_bc)))

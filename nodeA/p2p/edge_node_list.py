@@ -45,4 +45,5 @@ class EdgeNodeList:
         """
         現在接続状態にあるEdgeノードの一覧を返却する
         """
-        return self.list
+        re = set(self.list)
+        return re

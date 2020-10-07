@@ -45,7 +45,8 @@ class CoreNodeList:
         """
         現在接続状態にあるPeerの一覧を返却する
         """
-        return self.list
+        li = set(self.list)
+        return li
 
     def get_length(self):
         return len(self.list)

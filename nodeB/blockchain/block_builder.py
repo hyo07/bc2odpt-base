@@ -12,6 +12,6 @@ class BlockBuilder:
         genesis_block = GenesisBlock()
         return genesis_block
 
-    def generate_new_block(self, transaction, previous_block_hash, block_num, address, sc_self):
-        new_block = Block(transaction, previous_block_hash, block_num, address, sc_self)
+    def generate_new_block(self, transaction, previous_block_hash, block_num, address, hash_txs, sc_self):
+        new_block = Block(transaction, previous_block_hash, block_num, address, hash_txs, sc_self)
         return new_block
